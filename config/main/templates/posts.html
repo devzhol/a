@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Пагинатор</title>
+</head>
+<body>
+
+    <h1>Список постов</h1>
+
+    {% for post in posts %}
+        <p>{{ post }}</p>
+    {% endfor %}
+
+    <hr>
+
+    {% for page in total_pages %}
+
+        {% if page == current_page %}
+            <strong>{{ page }}</strong>
+        {% else %}
+            <a href="?page={{ page }}">{{ page }}</a>
+        {% endif %}
+
+    {% endfor %}
+
+</body>
+</html>
