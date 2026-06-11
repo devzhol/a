@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Интерфейс управления пользователями</title>
+</head>
+<body>
+    <h1>Интерфейс пользователя</h1>
+
+    {% if messages %}
+        <script>
+            {% for message in messages %}
+                alert('{{ message.tags|escapejs }}: {{ message|escapejs }}');
+            {% endfor %}
+        </script>
+    {% endif %}
+
+    <p>Подписанные данные для отправки: <code>{{ signed_payload }}</code></p>
+    <p><a href="{% url 'register' %}">Регистрация нового пользователя</a></p>
+    <p><a href="{% url 'profile_list' %}">Просмотр созданных профилей</a></p>
+    <p><a href="{% url 'show_message' %}">Тестовое всплывающее сообщение</a></p>
+    <p><a href="{% url 'show_warning_message' %}">Тестовое уведомление другого уровня</a></p>
+</body>
+</html>
