@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Регистрация пользователя</title>
+</head>
+<body>
+    <h1>Регистрация нового пользователя</h1>
+
+    {% if messages %}
+        <script>
+            {% for message in messages %}
+                alert('{{ message|escapejs }}');
+            {% endfor %}
+        </script>
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Создать пользователя</button>
+    </form>
+
+    <p><a href="{% url 'home' %}">Назад на главную</a></p>
+    <p><a href="{% url 'profile_list' %}">Смотреть профили</a></p>
+</body>
+</html>

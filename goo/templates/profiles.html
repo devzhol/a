@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Список профилей</title>
+</head>
+<body>
+    <h1>Список профилей пользователей</h1>
+
+    {% if profiles %}
+        <ul>
+            {% for profile in profiles %}
+                <li>{{ profile.user.username }} — профиль создан</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>Профили пока не созданы.</p>
+    {% endif %}
+
+    <p><a href="{% url 'register' %}">Создать пользователя</a></p>
+    <p><a href="{% url 'home' %}">Назад на главную</a></p>
+</body>
+</html>
