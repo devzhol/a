@@ -119,6 +119,19 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+# Redis cache configuration.
+# Start Redis locally and override REDIS_URL if your server uses another host/db.
+REDIS_URL = os.environ.get('REDIS_URL', 'redis://127.0.0.1:6379/1')
+CACHE_TTL = int(os.environ.get('CACHE_TTL', 300))
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+        'LOCATION': REDIS_URL,
+        'TIMEOUT': CACHE_TTL,
+    }
+}
+
 # Email configuration for SMTP
 # Set up credentials through environment variables before sending real emails.
 # For Gmail use smtp.gmail.com with EMAIL_USE_TLS = True, port 587.

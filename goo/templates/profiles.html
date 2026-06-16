@@ -6,6 +6,7 @@
 </head>
 <body>
     <h1>Список профилей пользователей</h1>
+    <p>Redis cache: {% if cache_hit %}hit{% else %}miss{% endif %}</p>
 
     {% if profiles %}
         <ul>

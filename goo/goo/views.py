@@ -1,10 +1,12 @@
 from django.contrib import messages
 from django.contrib.auth.forms import UserCreationForm
 from django.core import signing
+from django.core.cache import cache
 from django.shortcuts import redirect, render
 from django.contrib.auth.views import PasswordResetView
 from django.urls import reverse_lazy
 from django.http import JsonResponse
+from django.utils import timezone
 
 from .models import Profile
 from .send_email import send_batch_password_reset_emails, send_single_password_reset_email
@@ -35,6 +37,7 @@ def register(request):
             user = form.save()
             # Create profile for new user
             Profile.objects.get_or_create(user=user)
+            cache.delete('profiles:list')
             messages.success(request, 'Пользователь создан. Профиль автоматически добавлен.')
             return redirect('profile_list')
     else:
@@ -44,8 +47,36 @@ def register(request):
 
 
 def profile_list(request):
-    profiles = Profile.objects.select_related('user').all()
-    return render(request, 'profiles.html', {'profiles': profiles})
+    profiles = cache.get('profiles:list')
+    cache_hit = profiles is not None
+
+    if profiles is None:
+        profiles = list(Profile.objects.select_related('user').all())
+        cache.set('profiles:list', profiles, 300)
+
+    return render(request, 'profiles.html', {
+        'profiles': profiles,
+        'cache_hit': cache_hit,
+    })
+
+
+def cache_demo(request):
+    cache_key = 'home:cache-demo'
+    cached_data = cache.get(cache_key)
+    cache_hit = cached_data is not None
+
+    if cached_data is None:
+        cached_data = {
+            'message': 'Data generated on the server and saved in Redis.',
+            'generated_at': timezone.now().isoformat(),
+        }
+        cache.set(cache_key, cached_data, 300)
+
+    return JsonResponse({
+        **cached_data,
+        'server_cache_hit': cache_hit,
+        'ttl_seconds': 300,
+    })
 
 
 class CustomPasswordResetView(PasswordResetView):

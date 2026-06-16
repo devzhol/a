@@ -21,5 +21,45 @@
     <p><a href="{% url 'show_message' %}">Тестовое всплывающее сообщение</a></p>
     <p><a href="{% url 'show_warning_message' %}">Тестовое уведомление другого уровня</a></p>
     <p><a href="{% url 'password_reset' %}">Сброс пароля (отправить письмо)</a></p>
+
+    <section>
+        <h2>Cache demo</h2>
+        <p id="cache-status">Loading cache data...</p>
+        <button type="button" id="refresh-cache">Refresh client cache</button>
+    </section>
+
+    <script>
+        const cacheStatus = document.getElementById('cache-status');
+        const refreshButton = document.getElementById('refresh-cache');
+        const clientCacheKey = 'goo-cache-demo';
+        const clientCacheTtl = 60 * 1000;
+
+        function renderCacheData(data, source) {
+            cacheStatus.textContent = `${source}: ${data.message} Generated at ${data.generated_at}. Redis hit: ${data.server_cache_hit}`;
+        }
+
+        async function loadCacheData(forceRefresh = false) {
+            const cachedValue = localStorage.getItem(clientCacheKey);
+
+            if (!forceRefresh && cachedValue) {
+                const cachedData = JSON.parse(cachedValue);
+                if (Date.now() - cachedData.savedAt < clientCacheTtl) {
+                    renderCacheData(cachedData.payload, 'Client cache');
+                    return;
+                }
+            }
+
+            const response = await fetch("{% url 'cache_demo' %}");
+            const payload = await response.json();
+            localStorage.setItem(clientCacheKey, JSON.stringify({
+                payload,
+                savedAt: Date.now()
+            }));
+            renderCacheData(payload, 'Server');
+        }
+
+        refreshButton.addEventListener('click', () => loadCacheData(true));
+        loadCacheData();
+    </script>
 </body>
 </html>
