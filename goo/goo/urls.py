@@ -21,6 +21,8 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
+    path('login/', auth_views.LoginView.as_view(template_name='login.html'), name='login'),
+    path('logout/', auth_views.LogoutView.as_view(), name='logout'),
     path('', views.home, name='home'),
     path('show-message/', views.show_message, name='show_message'),
     path('show-warning-message/', views.show_warning_message, name='show_warning_message'),

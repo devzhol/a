@@ -22,6 +22,11 @@
     <p><a href="{% url 'show_warning_message' %}">Тестовое уведомление другого уровня</a></p>
     <p><a href="{% url 'password_reset' %}">Сброс пароля (отправить письмо)</a></p>
 
+    <form method="post" action="{% url 'logout' %}">
+        {% csrf_token %}
+        <button type="submit">Logout</button>
+    </form>
+
     <section>
         <h2>Cache demo</h2>
         <p id="cache-status">Loading cache data...</p>

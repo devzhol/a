@@ -4,7 +4,7 @@ from django.core.cache import cache
 
 
 class ActiveUserRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
-    login_url = '/admin/login/'
+    login_url = '/login/'
     permission_denied_message = 'Only active users can open this page.'
     raise_exception = True
 
