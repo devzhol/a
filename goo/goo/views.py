@@ -7,11 +7,13 @@ from django.contrib.auth.views import PasswordResetView
 from django.urls import reverse_lazy
 from django.http import JsonResponse
 from django.utils import timezone
+from django.views.generic import TemplateView
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
 from .forms import CustomUserCreationForm
 from .send_email import send_batch_password_reset_emails, send_single_password_reset_email
+from .view_mixins import ProtectedCachedUserListMixin
 
 
 def home(request):
@@ -46,19 +48,8 @@ def register(request):
     return render(request, 'register.html', {'form': form})
 
 
-def profile_list(request):
-    profiles = cache.get('profiles:list')
-    cache_hit = profiles is not None
-
-    if profiles is None:
-        User = get_user_model()
-        profiles = list(User.objects.all())
-        cache.set('profiles:list', profiles, 300)
-
-    return render(request, 'profiles.html', {
-        'profiles': profiles,
-        'cache_hit': cache_hit,
-    })
+class ProfileListView(ProtectedCachedUserListMixin, TemplateView):
+    template_name = 'profiles.html'
 
 
 def cache_demo(request):
