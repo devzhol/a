@@ -14,3 +14,17 @@ class CustomUser(ProfileNameMixin, AbstractUser):
 
     def __str__(self):
         return self.display_name
+
+
+class Task(models.Model):
+    title = models.CharField('Title', max_length=200)
+    description = models.TextField('Description', blank=True)
+    completed = models.BooleanField('Completed', default=False)
+    created_at = models.DateTimeField('Created at', auto_now_add=True)
+    updated_at = models.DateTimeField('Updated at', auto_now=True)
+
+    class Meta:
+        ordering = ['completed', '-created_at']
+
+    def __str__(self):
+        return self.title

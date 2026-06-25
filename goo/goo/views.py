@@ -2,16 +2,19 @@ from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.core import signing
 from django.core.cache import cache
-from django.shortcuts import redirect, render
 from django.contrib.auth.views import PasswordResetView
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
 from django.http import JsonResponse
 from django.utils import timezone
 from django.views.generic import TemplateView
+from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
 from .forms import CustomUserCreationForm
+from .models import Task
+from .serializers import TaskSerializer, UserSerializer
 from .send_email import send_batch_password_reset_emails, send_single_password_reset_email
 from .view_mixins import ProtectedCachedUserListMixin
 
@@ -83,6 +86,51 @@ def sample_api(request):
             {'id': 3, 'name': 'Маршрут /api/sample/ работает'},
         ],
     })
+
+
+@api_view(['GET', 'POST'])
+def task_list(request):
+    if request.method == 'GET':
+        tasks = Task.objects.all()
+        serializer = TaskSerializer(tasks, many=True)
+        return Response(serializer.data)
+
+    serializer = TaskSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET', 'PUT', 'PATCH', 'DELETE'])
+def task_detail(request, task_id):
+    task = get_object_or_404(Task, pk=task_id)
+
+    if request.method == 'GET':
+        serializer = TaskSerializer(task)
+        return Response(serializer.data)
+
+    if request.method in ('PUT', 'PATCH'):
+        serializer = TaskSerializer(
+            task,
+            data=request.data,
+            partial=request.method == 'PATCH',
+        )
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    task.delete()
+    return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+@api_view(['GET'])
+def user_list(request):
+    User = get_user_model()
+    users = User.objects.order_by('username')
+    serializer = UserSerializer(users, many=True)
+    return Response(serializer.data)
 
 
 class CustomPasswordResetView(PasswordResetView):

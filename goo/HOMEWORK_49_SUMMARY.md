@@ -1,53 +1,45 @@
-# Практическая работа №49
+# Homework #49 - Django REST Framework
 
-## Тема
+## Task
 
-Модуль 30. Разработка Web-служб REST. REST framework. Django REST Framework.
+1. Add routes and function controllers for a todo-list application.
+2. Add logic that returns an array of users through DRF.
 
-## Что сделано
+## What was implemented
 
-- В проект добавлена библиотека `djangorestframework`.
-- В `INSTALLED_APPS` подключено приложение `rest_framework`.
-- Создан простой DRF endpoint, который возвращает данные в формате JSON.
-- Добавлен маршрут:
+- Added the `Task` model for todo-list items.
+- Added `TaskSerializer` and `UserSerializer`.
+- Added DRF function-based controllers:
+  - `task_list` for listing and creating tasks;
+  - `task_detail` for reading, updating, partially updating, and deleting one task;
+  - `user_list` for returning an array of users.
+- Registered `Task` in the Django admin panel.
+
+## API routes
 
 ```text
-GET /api/sample/
+GET    /api/tasks/
+POST   /api/tasks/
+GET    /api/tasks/<id>/
+PUT    /api/tasks/<id>/
+PATCH  /api/tasks/<id>/
+DELETE /api/tasks/<id>/
+GET    /api/users/
 ```
 
-## Пример ответа
+## Example task payload
 
 ```json
 {
-  "title": "Практическая работа №49",
-  "module": "Модуль 30. Разработка Web-служб REST",
-  "framework": "Django REST Framework",
-  "items": [
-    {
-      "id": 1,
-      "name": "DRF установлен"
-    },
-    {
-      "id": 2,
-      "name": "APIView возвращает данные"
-    },
-    {
-      "id": 3,
-      "name": "Маршрут /api/sample/ работает"
-    }
-  ]
+  "title": "Learn DRF",
+  "description": "Create function-based API views",
+  "completed": false
 }
 ```
 
-## Как проверить
+## Checks
 
 ```bash
-pip install -r requirements.txt
-python manage.py runserver
-```
-
-Откройте в браузере:
-
-```text
-http://127.0.0.1:8000/api/sample/
+python manage.py check
+python manage.py makemigrations --check --dry-run
 ```

@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 
 from .mixins import ProfileAdminSummaryMixin
-from .models import CustomUser
+from .models import CustomUser, Task
 
 
 @admin.register(CustomUser)
@@ -39,3 +39,10 @@ class CustomUserAdmin(ProfileAdminSummaryMixin, UserAdmin):
     def get_list_display(self, request):
         self.profile_summary.short_description = self.profile_summary_label
         return super().get_list_display(request)
+
+
+@admin.register(Task)
+class TaskAdmin(admin.ModelAdmin):
+    list_display = ('title', 'completed', 'created_at', 'updated_at')
+    list_filter = ('completed',)
+    search_fields = ('title', 'description')
