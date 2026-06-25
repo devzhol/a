@@ -1,5 +1,5 @@
 from django.contrib import messages
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth import get_user_model
 from django.core import signing
 from django.core.cache import cache
 from django.shortcuts import redirect, render
@@ -7,8 +7,10 @@ from django.contrib.auth.views import PasswordResetView
 from django.urls import reverse_lazy
 from django.http import JsonResponse
 from django.utils import timezone
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
 
-from .models import Profile
+from .forms import CustomUserCreationForm
 from .send_email import send_batch_password_reset_emails, send_single_password_reset_email
 
 
@@ -32,16 +34,14 @@ def show_warning_message(request):
 
 def register(request):
     if request.method == 'POST':
-        form = UserCreationForm(request.POST)
+        form = CustomUserCreationForm(request.POST)
         if form.is_valid():
-            user = form.save()
-            # Create profile for new user
-            Profile.objects.get_or_create(user=user)
+            form.save()
             cache.delete('profiles:list')
-            messages.success(request, 'Пользователь создан. Профиль автоматически добавлен.')
+            messages.success(request, 'Пользователь создан.')
             return redirect('profile_list')
     else:
-        form = UserCreationForm()
+        form = CustomUserCreationForm()
 
     return render(request, 'register.html', {'form': form})
 
@@ -51,7 +51,8 @@ def profile_list(request):
     cache_hit = profiles is not None
 
     if profiles is None:
-        profiles = list(Profile.objects.select_related('user').all())
+        User = get_user_model()
+        profiles = list(User.objects.all())
         cache.set('profiles:list', profiles, 300)
 
     return render(request, 'profiles.html', {
@@ -79,6 +80,20 @@ def cache_demo(request):
     })
 
 
+@api_view(['GET'])
+def sample_api(request):
+    return Response({
+        'title': 'Практическая работа №49',
+        'module': 'Модуль 30. Разработка Web-служб REST',
+        'framework': 'Django REST Framework',
+        'items': [
+            {'id': 1, 'name': 'DRF установлен'},
+            {'id': 2, 'name': 'APIView возвращает данные'},
+            {'id': 3, 'name': 'Маршрут /api/sample/ работает'},
+        ],
+    })
+
+
 class CustomPasswordResetView(PasswordResetView):
     """
     Custom Password Reset View using batch email sending (low-level methods).
@@ -98,7 +113,6 @@ class CustomPasswordResetView(PasswordResetView):
         email = form.cleaned_data['email']
         
         # Find user(s) with this email
-        from django.contrib.auth import get_user_model
         User = get_user_model()
         users = User.objects.filter(email=email)
         
@@ -121,7 +135,6 @@ def send_batch_password_reset_emails_view(request):
         return JsonResponse({'error': 'Permission denied'}, status=403)
     
     try:
-        from django.contrib.auth import get_user_model
         User = get_user_model()
         
         # Get all users with email

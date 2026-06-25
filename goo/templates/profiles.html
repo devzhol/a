@@ -11,7 +11,14 @@
     {% if profiles %}
         <ul>
             {% for profile in profiles %}
-                <li>{{ profile.user.username }} — профиль создан</li>
+                <li>
+                    <strong>{{ profile.username }}</strong>
+                    {% if profile.city %} - {{ profile.city }}{% endif %}
+                    {% if profile.phone_number %} - {{ profile.phone_number }}{% endif %}
+                    {% if profile.birth_date %} - {{ profile.birth_date }}{% endif %}
+                    {% if profile.website %} - <a href="{{ profile.website }}">{{ profile.website }}</a>{% endif %}
+                    {% if profile.bio %}<br>{{ profile.bio }}{% endif %}
+                </li>
             {% endfor %}
         </ul>
     {% else %}

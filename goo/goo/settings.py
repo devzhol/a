@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
     'goo.apps.GooConfig',
 ]
 
@@ -70,6 +71,8 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'goo.wsgi.application'
+
+AUTH_USER_MODEL = 'goo.CustomUser'
 
 
 # Database

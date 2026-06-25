@@ -1,10 +1,16 @@
-from django.conf import settings
+from django.contrib.auth.models import AbstractUser
 from django.db import models
 
+from .mixins import ProfileNameMixin
 
-class Profile(models.Model):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    bio = models.TextField(blank=True)
+
+class CustomUser(ProfileNameMixin, AbstractUser):
+    bio = models.TextField('About user', blank=True)
+    phone_number = models.CharField('Phone number', max_length=20, blank=True)
+    birth_date = models.DateField('Birth date', null=True, blank=True)
+    city = models.CharField('City', max_length=100, blank=True)
+    website = models.URLField('Website', blank=True)
+    receive_newsletter = models.BooleanField('Receive newsletter', default=True)
 
     def __str__(self):
-        return f'Profile for {self.user.username}'
+        return self.display_name
